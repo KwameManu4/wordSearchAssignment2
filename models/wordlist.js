@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       WordList.hasMany(models.Word, {foreignKey: 'wordListId'});
+      WordList.hasMany(models.ActivitySetting, {foreignKey: 'wordListId'})
     }
   }
   WordList.init({

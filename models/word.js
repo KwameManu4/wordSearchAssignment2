@@ -11,6 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Word.belongsTo(models.WordList, {foreignKey: 'wordListId'});
+      Word.hasMany(models.Phoneme, {foreignKey:'wordId'})
+      
     }
   }
   Word.init({
