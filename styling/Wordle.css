@@ -1,0 +1,128 @@
+.grid-board{
+    display: grid;
+    grid-template-rows:repeat(6,1fr);
+    grid-gap: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    min-width:min(250px, 100vw);
+    justify-content: center;
+    margin-top:4rem;
+
+}
+
+.grid-row{
+    display: flex;
+    gap: 5px;
+    perspective: 1000px;
+    
+    
+    
+}
+
+.grid-row > div{
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--text-color);
+    box-sizing: border-box;
+    font-size: 1rem;
+    
+    
+
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-15px); }
+    75% { transform: translateX(15px); }
+}
+
+.shake {
+    animation: shake 0.1s;
+}
+
+.keyboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    gap: 6px;
+    max-width: 600px;
+    margin: 1rem auto;
+    border-radius: 2px;
+
+}
+
+.phoneme-btn {
+    padding: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 6px;
+}
+
+.phoneme-btn:hover {
+    background-color: var(--text-color);
+    color: var(--background-color);
+}
+
+.cell-correct {
+    background-color: green;
+    color: white;
+}
+
+.cell-present {
+    background-color: goldenrod;
+    color: white;
+}
+
+.cell-absent {
+    background-color: gray;
+    color: white;
+}
+
+.submit-btn{
+    width: 200px;
+    padding: 10px;
+    font-size: 2rem;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 6px;
+    display: block;
+    margin: 1rem auto;
+}
+
+@keyframes flip {
+    0% { transform: rotateX(0deg); }
+    50% { transform: rotateX(90deg); }
+    100% { transform: rotateX(0deg); }
+}
+
+.flip {
+    animation: flip 0.5s ease;
+}
+
+.backspace-btn{
+    width: 200px;
+    padding: 10px;
+    font-size: 2rem;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 6px;
+    display: block;
+    margin: 1rem auto;
+}
+
+.backSpace-submit{
+    display:flex;
+    flex-direction: row;
+    gap:5px;
+    align-items: center;
+    justify-content: center;
+}

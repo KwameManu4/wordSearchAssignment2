@@ -1,0 +1,257 @@
+:root{
+    --background-color:#ffffff;
+    --text-color: #1a1a1a;
+    --button-bg:#eeeeee;
+    --button-text:#1a1a1a;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+
+
+.dark-mode {
+    --background-color: #121212;
+    --text-color: #f5f5f5;
+    --button-bg: #333333;
+    --button-text:#f5f5f5;
+}
+
+.container{
+    position: relative;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.page{
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.header-home,
+.header-about,
+.header-wordsearch,
+.header-settings,
+.header-wordle{
+    display: flex;
+    justify-content: center;
+    margin-top:2rem;
+
+}
+
+.navbar{
+    display:flex;
+    flex-direction: row;
+    gap:10px;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+
+.toggle-btn{
+    position:flex;
+
+    padding:10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 5px;
+    
+}
+
+.btn{
+    position: flex;
+    padding:10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 5px;
+
+
+}
+
+.Home-paragraph{
+    max-width: 700px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+    text-align: center;
+    font-size: 1.35rem;
+    line-height: 1.7;
+    color: var(--text-color);
+    font-weight: 600;
+    letter-spacing: normal;
+}
+
+.feature-cards{
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.feature-card{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    width: 260px;
+    padding: 1.75rem 1.5rem;
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.feature-card:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.feature-card-icon{
+    font-size: 2.5rem;
+}
+
+.feature-card h3{
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.feature-card p{
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.8;
+}
+
+.how-it-works{
+    max-width: 900px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+    text-align: center;
+}
+
+.how-it-works h2,
+.phoneme-teaser h2{
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.how-it-works-steps{
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.step{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 220px;
+}
+
+.step-number{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--text-color);
+    color: var(--background-color);
+    font-weight: 600;
+}
+
+.step p{
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+.phoneme-teaser{
+    max-width: 700px;
+    margin: 3rem auto 4rem;
+    padding: 0 1.5rem;
+    text-align: center;
+}
+
+.phoneme-teaser p{
+    opacity: 0.8;
+    margin-bottom: 1.25rem;
+}
+
+.phoneme-teaser-row{
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.phoneme-chip{
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.9rem;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border-radius: 999px;
+    font-size: 1rem;
+    cursor: default;
+}
+
+.phoneme-chip-label{
+    font-size: 0.75rem;
+    opacity: 0.7;
+    letter-spacing: 0.05em;
+}
+
+.assessment-note{
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    padding: 1rem 1.5rem;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--button-bg);
+    border-radius: 12px;
+}
+
+.video-placeholder{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 700px;
+    margin: 0 auto;
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border-radius: 12px;
+}
+
+.walkthrough-video{
+    width: 100%;
+    display: block;
+    border-radius: 12px;
+}
+
+.site-footer{
+    margin-top: 3rem;
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.75;
+    border-top: 1px solid var(--button-bg);
+}
