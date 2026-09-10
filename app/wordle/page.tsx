@@ -111,7 +111,7 @@ const getKeyStatuses = (): Record<string, PhonemeStatus> => {
   return (
     <div className="page">
       <div className = "header-wordle">
-        <h1 style={{ fontSize: 32 }}>Assessment 1: Frontend design and usability - Wordle</h1>
+        <h1 style={{ fontSize: 32 }}>Assessment 2: Backend API - Wordle</h1>
       </div>
 
       

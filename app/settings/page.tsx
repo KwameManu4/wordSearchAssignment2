@@ -9,7 +9,7 @@ export default function Settings() {
   return (
     <div className="page">
       <div className = "header-settings">
-        <h1 style={{ fontSize: 32 }}>Assessment 1: Frontend design and usability - Settings</h1>
+        <h1 style={{ fontSize: 32 }}>Assessment 2: Backend API - Settings</h1>
       </div>
     
       <div className='navbar'>

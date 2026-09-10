@@ -340,7 +340,7 @@ const downloadHtmlFile = () => {
 return (
     <div className="page">
     <div className = "header-wordsearch">
-        <h1 style={{ fontSize: 32 }}>Assessment 1: Frontend design and usability - Word Search</h1>
+        <h1 style={{ fontSize: 32 }}>Assessment 2: Backend API - Word Search</h1>
     </div>
     
     <div className='navbar'>

@@ -14,7 +14,7 @@ export default function Home() {
 
     <div className="page">
       <div className = "header-home">
-        <h1 style={{ fontSize: 32 }}>Assessment 1: Frontend design and usability - Home</h1>
+        <h1 style={{ fontSize: 32 }}>Assessment 2: Backend API - Home</h1>
       </div>
       <div className='navbar'>
 
