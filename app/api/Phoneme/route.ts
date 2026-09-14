@@ -49,7 +49,7 @@ export async function POST(request: NextRequest){
     try{
         const{wordId, position, symbol} = await request.json();
 
-        if(!wordId || !position || !symbol){
+        if(!wordId || position === undefined || position === null || !symbol){
             return new NextResponse('Missing id, position or symbol',{status:400, headers:corsHeaders})
         }
         const newPhoneme = await models.Phoneme.create({

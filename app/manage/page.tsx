@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import HamburgerMenu from '../Components/HamburgerMenu';
 import Footer from '../Components/Footer';
+import '../../Styling/Manage.css';
+import { phonemeDictionary } from '../data/Phonemes';
 
 
 import {useState, useEffect} from 'react';
@@ -28,12 +30,15 @@ export default function Manage() {
 
     const [wordLists, setWordLists] = useState<WordList[]>([]);
     const [newListName, setNewListName] = useState('');
+    const [editingListId, setEditingListId] = useState<number | null>(null);
+    const [editListName, setEditListName] = useState('');
     const [words, setWords] = useState<Word[]>([]);
     const [selectedWordListId, setSelectedWordListId] = useState<number | null>(null);
     const [newWordEnglish, setNewWordEnglish] = useState('');
     const [phoneme, setPhoneme] = useState<Phoneme[]>([]);
     const [newSymbol, setSymbol] = useState('');
     const [selectedWordId, setSelectedWordId] = useState<number | null>(null);
+    const [showPhonemeKeyboard, setShowPhonemeKeyboard] = useState(false);
 
     
 
@@ -54,6 +59,30 @@ export default function Manage() {
         method: 'DELETE',
       });
       if(res.ok){
+        if(selectedWordListId === id){
+          setSelectedWordListId(null);
+          setSelectedWordId(null);
+        }
+        fetchWordList();
+      }
+    }
+
+    const startEditList = (list: WordList) => {
+      setEditingListId(list.id);
+      setEditListName(list.name);
+    }
+
+    const saveListEdit = async (id: number) => {
+      if (!editListName) return;
+
+      const res = await fetch(`/api/wordlist?id=${id}`, {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name: editListName}),
+      });
+      if (res.ok){
+        setEditingListId(null);
+        setEditListName('');
         fetchWordList();
       }
     }
@@ -95,6 +124,9 @@ export default function Manage() {
 
       });
       if(res.ok){
+        if(selectedWordId === id){
+          setSelectedWordId(null);
+        }
         fetchWord();
       }
     };
@@ -211,74 +243,109 @@ export default function Manage() {
 
       </div>
 
-      <div style ={{padding:'1rem'}}>
+      <div className="manage-section">
         <h2>Word List</h2>
-        <div style ={{marginBottom: '1rem'}}>
+        <div className="manage-add-row">
           <input
+          className="manage-input"
           type = "text"
           value = {newListName}
           onChange={(e) => setNewListName(e.target.value)}
           placeholder = "Enter new Word"
           />
-          <button onClick={addWord}>Add word</button>
+          <button className="manage-btn" onClick={addWord}>Add word</button>
         </div>
+
+        <ul className="manage-list">
+          {wordLists.length === 0 && <li className="manage-empty">No word lists yet</li>}
+          {wordLists.map((list) => (
+            <li key={list.id} className={`manage-list-item${selectedWordListId === list.id ? ' selected' : ''}`}>
+              {editingListId === list.id ? (
+                <>
+                  <input
+                  className="manage-input"
+                  type = "text"
+                  value = {editListName}
+                  onChange={(e) => setEditListName(e.target.value)}
+                  />
+                  <button className="manage-btn" onClick={() => saveListEdit(list.id)}>Save</button>
+                </>
+              ) : (
+                <>
+                  <span className="manage-list-item-name" onClick={() => setSelectedWordListId(list.id)}>{list.name}</span>
+                  <button className="manage-btn" onClick={() => startEditList(list)}>Edit</button>
+                  <button className="manage-btn manage-btn-delete" onClick={() => deleteWordList(list.id)}>Delete</button>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
 
-      <ul>
-  {wordLists.map((list) => (
-    <li key={list.id}>
-      <span onClick={() => setSelectedWordListId(list.id)}>{list.name}</span>
-      <button onClick={() => deleteWordList(list.id)}> Delete </button>
-    </li>
-  ))}
-</ul>
-
 {selectedWordListId !== null && (
-  <div>
+  <div className="manage-section">
     <h2>Words in this list</h2>
-    <ul>
+    <ul className="manage-list">
+      {words.length === 0 && <li className="manage-empty">No words in this list yet</li>}
       {words.map((word) => (
-        <li key={word.id}>
-          <span onClick = {()=> setSelectedWordId(word.id)}>{word.english}</span>
-          <button onClick ={()=> deleteWord(word.id)}>Delete</button>
+        <li key={word.id} className={`manage-list-item${selectedWordId === word.id ? ' selected' : ''}`}>
+          <span className="manage-list-item-name" onClick = {()=> setSelectedWordId(word.id)}>{word.english}</span>
+          <button className="manage-btn manage-btn-delete" onClick ={()=> deleteWord(word.id)}>Delete</button>
           </li>
       ))}
     </ul>
-    
-    <input
-    type = 'text'
-    value = {newWordEnglish}
-    onChange={(e)=> setNewWordEnglish(e.target.value)}
-    placeholder = "Enter new word"
-    />
-    <button onClick={addNewWord}> Add word to list</button>
 
-
-
-
-
+    <div className="manage-add-row">
+      <input
+      className="manage-input"
+      type = 'text'
+      value = {newWordEnglish}
+      onChange={(e)=> setNewWordEnglish(e.target.value)}
+      placeholder = "Enter new word"
+      />
+      <button className="manage-btn" onClick={addNewWord}>Add word to list</button>
+    </div>
   </div>
 )}
 
 {selectedWordId !== null && (
-  <div>
+  <div className="manage-section">
     <h2>Phonemes for this word</h2>
-    <ul>
+    <ul className="manage-list">
+      {phoneme.length === 0 && <li className="manage-empty">No phonemes yet</li>}
       {phoneme.map((p) => (
-        <li key = {p.id}>
-          {p.symbol}
-          <button onClick = {()=> deletePhoneme(p.id)}>Delete</button>
+        <li key = {p.id} className="manage-list-item">
+          <span className="manage-list-item-name">{p.symbol}</span>
+          <button className="manage-btn manage-btn-delete" onClick = {()=> deletePhoneme(p.id)}>Delete</button>
           </li>
       ))}
     </ul>
 
-    <input
-    type = "text"
-    value = {newSymbol}
-    onChange={(e) => setSymbol(e.target.value)}
-    placeholder="Enter phoneme symbol"
-    />
-    <button onClick = {addPhoneme}>Add phoneme</button>
+    <div className="manage-add-row">
+      <input
+      className="manage-input"
+      type = "text"
+      value = {newSymbol}
+      onChange={(e) => setSymbol(e.target.value)}
+      onFocus={() => setShowPhonemeKeyboard(true)}
+      onBlur={() => setShowPhonemeKeyboard(false)}
+      placeholder="Enter phoneme symbol"
+      />
+      <button className="manage-btn" onClick = {addPhoneme}>Add phoneme</button>
+    </div>
+
+    {showPhonemeKeyboard && (
+      <div className="manage-mini-keyboard" onMouseDown={(e) => e.preventDefault()}>
+        {Object.entries(phonemeDictionary).map(([symbol, entry]) => (
+          <button
+          key={symbol}
+          title={`${entry.label} (as in ${entry.example})`}
+          onClick={() => setSymbol(symbol)}>
+            {symbol}
+          </button>
+        ))}
+      </div>
+    )}
     </div>
 )}
 
