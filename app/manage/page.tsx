@@ -12,10 +12,30 @@ type WordList = {
     name: string;
 }
 
+type Word = {
+  id:number;
+  english: string;
+  wordListId:number;
+}
+
+type Phoneme = {
+  id: number;
+  symbol: string;
+  wordId: number;
+}
+
 export default function Manage() {
 
     const [wordLists, setWordLists] = useState<WordList[]>([]);
     const [newListName, setNewListName] = useState('');
+    const [words, setWords] = useState<Word[]>([]);
+    const [selectedWordListId, setSelectedWordListId] = useState<number | null>(null);
+    const [newWordEnglish, setNewWordEnglish] = useState('');
+    const [phoneme, setPhoneme] = useState<Phoneme[]>([]);
+    const [newSymbol, setSymbol] = useState('');
+    const [selectedWordId, setSelectedWordId] = useState<number | null>(null);
+
+    
 
     const fetchWordList = async () => {
       try{
@@ -28,6 +48,15 @@ export default function Manage() {
         console.error('Error fetching Word List:', error);
       }
     };
+
+    const deleteWordList = async (id: number) => {
+      const res = await fetch(`/api/wordlist?id=${id}`,{
+        method: 'DELETE',
+      });
+      if(res.ok){
+        fetchWordList();
+      }
+    }
 
     useEffect(() => {
       fetchWordList()
@@ -42,14 +71,98 @@ export default function Manage() {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({name:newListName}),
       });
-
       if (res.ok){
         setNewListName('');
         fetchWordList();
       }
+    }
 
+    const fetchWord = async () => {
+      try{
+        const res = await fetch(`/api/words?wordListId=${selectedWordListId}`);
+        if (res.ok){
+          const data = await res.json();
+          setWords(data);
+        }
+      } catch(error){
+        console.error('Error fetching Word', error);
+      }
+    };
+    
+    const deleteWord = async (id:number) => {
+      const res = await fetch(`/api/words?id=${id}`,{
+        method: 'DELETE',
+
+      });
+      if(res.ok){
+        fetchWord();
+      }
+    };
+
+    useEffect(() =>{
+      if (selectedWordListId === null) return;
+
+      fetchWord()
+
+    },[selectedWordListId])
+
+    const addNewWord = async () => {
+      if (!newWordEnglish || !selectedWordListId) return;
+
+      const res = await fetch('/api/words',{
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({english: newWordEnglish, wordListId:selectedWordListId})
+      });
+      if (res.ok){
+        setNewWordEnglish('');
+        fetchWord();
+      }
+    }
+
+    useEffect(() => {
+      if (selectedWordId === null) return;
+      setSymbol('');
+      fetchPhoneme();
+    },[selectedWordId]);
+
+    
+
+    const addPhoneme = async () => {
+      if (!selectedWordId || !newSymbol) return;
+
+      const res = await fetch('/api/Phoneme',{
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({wordId: selectedWordId, symbol:newSymbol, position:phoneme.length})
+      });
+      if (res.ok){
+        setSymbol('');
+        fetchPhoneme();
+      }
       
     }
+
+    const fetchPhoneme = async () => {
+      try{
+        const res = await fetch(`/api/Phoneme?wordId=${selectedWordId}`);
+        if(res.ok){
+          const data = await res.json();
+          setPhoneme(data);
+        }
+        }catch(error){
+          console.error('Error fetching Phoneme', error)
+      }
+    }
+
+    const deletePhoneme = async (id:number) => {
+      const res = await fetch(`/api/Phoneme?id=${id}`,{
+        method:'DELETE',
+      });
+      if(res.ok){
+        fetchPhoneme();
+      }
+    };
 
 
 
@@ -111,21 +224,65 @@ export default function Manage() {
         </div>
       </div>
 
-
       <ul>
-        {wordLists.map((list)=> 
-        <li key={list.id}>{list.name}</li>
-        )}
-      </ul>
+  {wordLists.map((list) => (
+    <li key={list.id}>
+      <span onClick={() => setSelectedWordListId(list.id)}>{list.name}</span>
+      <button onClick={() => deleteWordList(list.id)}> Delete </button>
+    </li>
+  ))}
+</ul>
+
+{selectedWordListId !== null && (
+  <div>
+    <h2>Words in this list</h2>
+    <ul>
+      {words.map((word) => (
+        <li key={word.id}>
+          <span onClick = {()=> setSelectedWordId(word.id)}>{word.english}</span>
+          <button onClick ={()=> deleteWord(word.id)}>Delete</button>
+          </li>
+      ))}
+    </ul>
+    
+    <input
+    type = 'text'
+    value = {newWordEnglish}
+    onChange={(e)=> setNewWordEnglish(e.target.value)}
+    placeholder = "Enter new word"
+    />
+    <button onClick={addNewWord}> Add word to list</button>
 
 
 
-      
+
+
+  </div>
+)}
+
+{selectedWordId !== null && (
+  <div>
+    <h2>Phonemes for this word</h2>
+    <ul>
+      {phoneme.map((p) => (
+        <li key = {p.id}>
+          {p.symbol}
+          <button onClick = {()=> deletePhoneme(p.id)}>Delete</button>
+          </li>
+      ))}
+    </ul>
+
+    <input
+    type = "text"
+    value = {newSymbol}
+    onChange={(e) => setSymbol(e.target.value)}
+    placeholder="Enter phoneme symbol"
+    />
+    <button onClick = {addPhoneme}>Add phoneme</button>
+    </div>
+)}
 
       <Footer />
-
     </div>
-
-
   );
 }
