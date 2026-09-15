@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link'
-import {phonemeDictionary, targetWord} from '../data/Phonemes';
-import { useState } from 'react';
+import {phonemeDictionary} from '../data/Phonemes';
+import { useState, useEffect } from 'react';
 import '../../Styling/Wordle.css';
 import HamburgerMenu from '../Components/HamburgerMenu';
 import Footer from '../Components/Footer';
@@ -17,6 +17,32 @@ const [currentGuess, setCurrentGuess] = useState<string[]>([]);
 const [isInvalidGuess, setIsInvalidGuess] = useState(false);
 
 const [flippingRow, setFlippingRow] = useState<number | null> (null);
+
+const [targetWord, setTargetWord] = useState<string[]>([]);
+
+const fetchTargetWord = async () => {
+  try{
+    const res = await fetch ('/api/words')
+    if (res.ok) {
+      const allWords = await res.json();
+
+      if (allWords.length === 0) return;
+      const word = allWords[0];
+
+      const phonemeRes = await fetch(`/api/Phoneme?wordId=${word.id}`);
+      if (phonemeRes.ok) {
+        const phonemes = await phonemeRes.json();
+        setTargetWord(phonemes.map((p: {symbol: string}) => p.symbol));
+      }
+    }
+  }catch(error){
+    console.error('Error fetching words', error)
+  }
+};
+
+useEffect(() => {
+  fetchTargetWord();
+}, []);
 
 const handleBackSpace = () => {
   setCurrentGuess(prev => prev.slice(0,-1))

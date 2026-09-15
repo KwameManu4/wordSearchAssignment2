@@ -251,9 +251,9 @@ export default function Manage() {
           type = "text"
           value = {newListName}
           onChange={(e) => setNewListName(e.target.value)}
-          placeholder = "Enter new Word"
+          placeholder = "Enter new list"
           />
-          <button className="manage-btn" onClick={addWord}>Add word</button>
+          <button className="manage-btn" onClick={addWord}>Add List</button>
         </div>
 
         <ul className="manage-list">
