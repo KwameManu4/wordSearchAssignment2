@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react';
-import { wordList, phonemeDictionary, WordSearchWord } from '../data/Phonemes';
+import { phonemeDictionary, WordSearchWord } from '../data/Phonemes';
 import '../../Styling/WordSearch.css';
 import HamburgerMenu from '../Components/HamburgerMenu';
 import Footer from '../Components/Footer';
@@ -36,11 +36,11 @@ const shuffle = <T,>(items: T[]): T[] => {
   return copy;
 };
 
-const generatePuzzle = (rows: number, cols: number): Puzzle => {
+const generatePuzzle = (rows: number, cols: number, words: WordSearchWord[]): Puzzle => {
   const grid: (string | null)[][] = Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => null)
   );
-  const selectedWords = shuffle(wordList).slice(0, WORDS_PER_PUZZLE);
+  const selectedWords = shuffle(words).slice(0, WORDS_PER_PUZZLE);
   const placedWords: PlacedWord[] = [];
 
   selectedWords.forEach(word => {
@@ -260,13 +260,43 @@ export default function WordSearch() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<[number, number] | null>(null);
   const [dragEnd, setDragEnd] = useState<[number, number] | null>(null);
+  const [dbWordList, setDbWordList] = useState<WordSearchWord[]>([]);
+
+  const fetchWordList = async () => {
+    try{
+      const res = await fetch('/api/words');
+      if (res.ok) {
+        const allWords = await res.json();
+
+        if (allWords.length === 0) return;
+
+        const wordsWithPhonemes = await Promise.all(
+          allWords.map(async (word: {id: number; english: string}) => {
+            const phonemeRes = await fetch(`/api/Phoneme?wordId=${word.id}`);
+            const phonemes = phonemeRes.ok ? await phonemeRes.json() : [];
+            return { english: word.english, phonemes: phonemes.map((p: {symbol: string}) => p.symbol) };
+          })
+        );
+
+        setDbWordList(wordsWithPhonemes.filter((word: WordSearchWord) => word.phonemes.length > 0));
+      }
+    }catch(error){
+      console.error('Error fetching words', error);
+    }
+  };
 
   useEffect(() => {
-    setPuzzle(generatePuzzle(DEFAULT_ROWS, DEFAULT_COLS));
+    fetchWordList();
   }, []);
 
+  useEffect(() => {
+    if (dbWordList.length > 0) {
+      setPuzzle(generatePuzzle(DEFAULT_ROWS, DEFAULT_COLS, dbWordList));
+    }
+  }, [dbWordList]);
+
   const handleGeneratePuzzle = () => {
-    setPuzzle(generatePuzzle(rows, cols));
+    setPuzzle(generatePuzzle(rows, cols, dbWordList));
     setShowAnswers(false);
     setFoundWords(new Set());
   };

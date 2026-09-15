@@ -45,22 +45,22 @@
 
 .keyboard {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-    gap: 6px;
-    max-width: 600px;
+    grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+    gap: 4px;
+    max-width: 420px;
     margin: 1rem auto;
     border-radius: 2px;
 
 }
 
 .phoneme-btn {
-    padding: 10px;
-    font-size: 1rem;
+    padding: 6px;
+    font-size: 0.8rem;
     cursor: pointer;
     background-color: var(--button-bg);
     color: var(--button-text);
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
 }
 
 .phoneme-btn:hover {
@@ -84,9 +84,9 @@
 }
 
 .submit-btn{
-    width: 200px;
-    padding: 10px;
-    font-size: 2rem;
+    width: 110px;
+    padding: 6px;
+    font-size: 1.1rem;
     cursor: pointer;
     background-color: var(--button-bg);
     color: var(--button-text);
@@ -107,9 +107,9 @@
 }
 
 .backspace-btn{
-    width: 200px;
-    padding: 10px;
-    font-size: 2rem;
+    width: 110px;
+    padding: 6px;
+    font-size: 1.1rem;
     cursor: pointer;
     background-color: var(--button-bg);
     color: var(--button-text);
