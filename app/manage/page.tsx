@@ -35,6 +35,8 @@ export default function Manage() {
     const [words, setWords] = useState<Word[]>([]);
     const [selectedWordListId, setSelectedWordListId] = useState<number | null>(null);
     const [newWordEnglish, setNewWordEnglish] = useState('');
+    const [editingWordId, setEditingWordId] = useState<number | null>(null);
+    const [editWordEnglish, setEditWordEnglish] = useState('');
     const [phoneme, setPhoneme] = useState<Phoneme[]>([]);
     const [newSymbol, setSymbol] = useState('');
     const [selectedWordId, setSelectedWordId] = useState<number | null>(null);
@@ -130,6 +132,26 @@ export default function Manage() {
         fetchWord();
       }
     };
+
+    const startEditWord = (word: Word) => {
+      setEditingWordId(word.id);
+      setEditWordEnglish(word.english);
+    }
+
+    const saveWordEdit = async (id: number) => {
+      if (!editWordEnglish) return;
+
+      const res = await fetch(`/api/words?id=${id}`, {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({english: editWordEnglish}),
+      });
+      if (res.ok){
+        setEditingWordId(null);
+        setEditWordEnglish('');
+        fetchWord();
+      }
+    }
 
     useEffect(() =>{
       if (selectedWordListId === null) return;
@@ -289,8 +311,23 @@ export default function Manage() {
       {words.length === 0 && <li className="manage-empty">No words in this list yet</li>}
       {words.map((word) => (
         <li key={word.id} className={`manage-list-item${selectedWordId === word.id ? ' selected' : ''}`}>
-          <span className="manage-list-item-name" onClick = {()=> setSelectedWordId(word.id)}>{word.english}</span>
-          <button className="manage-btn manage-btn-delete" onClick ={()=> deleteWord(word.id)}>Delete</button>
+          {editingWordId === word.id ? (
+            <>
+              <input
+              className="manage-input"
+              type = "text"
+              value = {editWordEnglish}
+              onChange={(e) => setEditWordEnglish(e.target.value)}
+              />
+              <button className="manage-btn" onClick={() => saveWordEdit(word.id)}>Save</button>
+            </>
+          ) : (
+            <>
+              <span className="manage-list-item-name" onClick = {()=> setSelectedWordId(word.id)}>{word.english}</span>
+              <button className="manage-btn" onClick={() => startEditWord(word)}>Edit</button>
+              <button className="manage-btn manage-btn-delete" onClick ={()=> deleteWord(word.id)}>Delete</button>
+            </>
+          )}
           </li>
       ))}
     </ul>
