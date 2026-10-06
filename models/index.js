@@ -27,6 +27,8 @@ const modelDefiners = [
   require('./word'),
   require('./phoneme'),
   require('./activitysetting'),
+  require('./generationevent'),
+  require('./pagevisit'),
 ];
 
 for (const defineModel of modelDefiners) {

@@ -10,12 +10,12 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      GenerationEvent.belongsTo(models.WordList, {foreignKey: 'wordListId'})
     }
   }
   GenerationEvent.init({
-    activityType: DataTypes.ENUM,
-    status: DataTypes.ENUM,
+    activityType: DataTypes.ENUM('wordle','wordsearch'),
+    status: DataTypes.ENUM('success','failed'),
     failureReason: DataTypes.STRING,
     wordListId: DataTypes.INTEGER
   }, {
