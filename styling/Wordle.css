@@ -63,7 +63,22 @@
     border-radius: 4px;
 }
 
-.phoneme-btn:hover {
+.phoneme-btn:disabled,
+.submit-btn:disabled,
+.backspace-btn:disabled,
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wordle-message {
+    min-height: 1.5rem;
+    margin: 0.5rem auto 0;
+    text-align: center;
+    color: var(--text-color);
+}
+
+.phoneme-btn:hover:not(:disabled) {
     background-color: var(--text-color);
     color: var(--background-color);
 }

@@ -64,10 +64,25 @@ export default function Manage() {
         if(selectedWordListId === id){
           setSelectedWordListId(null);
           setSelectedWordId(null);
+          setWords([]);
+          setPhoneme([]);
         }
         fetchWordList();
       }
     }
+
+    const selectWordList = (id: number) => {
+      if (id === selectedWordListId) return;
+      setSelectedWordListId(id);
+      setWords([]);
+      setSelectedWordId(null);
+      setPhoneme([]);
+      setSymbol('');
+      setShowPhonemeKeyboard(false);
+      setEditingWordId(null);
+      setEditWordEnglish('');
+      setNewWordEnglish('');
+    };
 
     const startEditList = (list: WordList) => {
       setEditingListId(list.id);
@@ -294,7 +309,7 @@ export default function Manage() {
                 </>
               ) : (
                 <>
-                  <span className="manage-list-item-name" onClick={() => setSelectedWordListId(list.id)}>{list.name}</span>
+                  <span className="manage-list-item-name" onClick={() => selectWordList(list.id)}>{list.name}</span>
                   <button className="manage-btn" onClick={() => startEditList(list)}>Edit</button>
                   <button className="manage-btn manage-btn-delete" onClick={() => deleteWordList(list.id)}>Delete</button>
                 </>

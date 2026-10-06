@@ -8,8 +8,16 @@ import HamburgerMenu from '../Components/HamburgerMenu';
 import Footer from '../Components/Footer';
 
 
+const MAX_GUESSES = 6;
+
+// random word from the pool, avoiding the previous word when there is a choice
+const pickWord = (pool: string[][], previous: string[] = []): string[] => {
+  const options = pool.length > 1 ? pool.filter(w => w.join(' ') !== previous.join(' ')) : pool;
+  return options.length > 0 ? options[Math.floor(Math.random() * options.length)] : [];
+};
+
 const buildStandaloneHtml = (targetWord: string[]): string => {
-  const gridRows = Array.from({ length: 6 }, (_, r) => {
+  const gridRows = Array.from({ length: MAX_GUESSES }, (_, r) => {
     const cells = Array.from({ length: targetWord.length }, (_, c) => `<div class="cell" data-row="${r}" data-col="${c}"></div>`).join('');
     return `<div class="grid-row" data-row="${r}">${cells}</div>`;
   }).join('');
@@ -60,6 +68,7 @@ const buildStandaloneHtml = (targetWord: string[]): string => {
     var targetWord = ${targetWordData};
     var guessedWords = [];
     var currentGuess = [];
+    var gameOver = false;
 
     var statusClass = { correct: 'cell-correct', present: 'cell-present', absent: 'cell-absent' };
     var statusRank = { absent: 0, present: 1, correct: 2 };
@@ -127,6 +136,7 @@ const buildStandaloneHtml = (targetWord: string[]): string => {
 
     document.querySelectorAll('.phoneme-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
+        if (gameOver) return;
         if (currentGuess.length < targetWord.length) {
           currentGuess.push(btn.dataset.symbol);
           renderCurrentRow();
@@ -135,11 +145,13 @@ const buildStandaloneHtml = (targetWord: string[]): string => {
     });
 
     document.getElementById('backspace-btn').addEventListener('click', function () {
+      if (gameOver) return;
       currentGuess.pop();
       renderCurrentRow();
     });
 
     document.getElementById('submit-btn').addEventListener('click', function () {
+      if (gameOver) return;
       if (currentGuess.length === targetWord.length) {
         var submittedRowIndex = guessedWords.length;
         guessedWords.push(currentGuess);
@@ -150,8 +162,10 @@ const buildStandaloneHtml = (targetWord: string[]): string => {
         renderCurrentRow();
         if (guessedWords[submittedRowIndex].every(function (s, i) { return s === targetWord[i]; })) {
           document.getElementById('message').textContent = 'You got it!';
-        } else if (guessedWords.length >= 6) {
+          gameOver = true;
+        } else if (guessedWords.length >= ${MAX_GUESSES}) {
           document.getElementById('message').textContent = 'Out of guesses. The word was: ' + targetWord.join(' ');
+          gameOver = true;
         }
       } else {
         shakeCurrentRow();
@@ -174,21 +188,34 @@ const [flippingRow, setFlippingRow] = useState<number | null> (null);
 
 const [targetWord, setTargetWord] = useState<string[]>([]);
 
+// every word in the selected list that has phonemes; "New word" re-picks from this
+const [candidates, setCandidates] = useState<string[][]>([]);
+
+const [loadState, setLoadState] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
+
 const [wordLists, setWordLists] = useState<{id: number; name: string}[]>([]);
 
 const [selectedWordListId, setSelectedWordListId] = useState<number | null>(null);
+
+const startNewGame = (word: string[]) => {
+  setTargetWord(word);
+  setGuessedWords([]);
+  setCurrentGuess([]);
+  setFlippingRow(null);
+};
 
 useEffect(() => {
   const fetchWordLists = async () => {
     try {
       const res = await fetch('/api/wordlist');
-      if (res.ok) {
-        const lists: {id: number; name: string}[] = await res.json();
-        setWordLists(lists);
-        setSelectedWordListId(prev => prev ?? lists[0]?.id ?? null);
-      }
+      if (!res.ok) throw new Error(`Word list request failed (${res.status})`);
+      const lists: {id: number; name: string}[] = await res.json();
+      setWordLists(lists);
+      if (lists.length === 0) setLoadState('empty');
+      setSelectedWordListId(prev => prev ?? lists[0]?.id ?? null);
     } catch (error) {
       console.error('Error fetching word lists', error);
+      setLoadState('error');
     }
   };
   fetchWordLists();
@@ -199,30 +226,31 @@ useEffect(() => {
   let cancelled = false;
 
   const fetchTargetWord = async () => {
+    setLoadState('loading');
     try {
       const res = await fetch(`/api/words?wordListId=${selectedWordListId}`);
-      if (!res.ok) return;
+      if (!res.ok) throw new Error(`Words request failed (${res.status})`);
       const words: {id: number; english: string}[] = await res.json();
 
-      // first word in the list that actually has phonemes
-      let phonemeSymbols: string[] = [];
-      for (const word of words) {
-        const phonemeRes = await fetch(`/api/Phoneme?wordId=${word.id}`);
-        if (!phonemeRes.ok) continue;
-        const phonemes = await phonemeRes.json();
-        if (phonemes.length > 0) {
-          phonemeSymbols = phonemes.map((p: {symbol: string}) => p.symbol);
-          break;
-        }
-      }
+      const found = (await Promise.all(
+        words.map(async (word) => {
+          const phonemeRes = await fetch(`/api/Phoneme?wordId=${word.id}`);
+          const phonemes = phonemeRes.ok ? await phonemeRes.json() : [];
+          return phonemes.map((p: {symbol: string}) => p.symbol) as string[];
+        })
+      )).filter(symbols => symbols.length > 0);
 
       if (cancelled) return;
-      setTargetWord(phonemeSymbols);
-      setGuessedWords([]);
-      setCurrentGuess([]);
-      setFlippingRow(null);
+      setCandidates(found);
+      startNewGame(pickWord(found));
+      setLoadState(found.length > 0 ? 'ready' : 'empty');
     } catch (error) {
+      if (cancelled) return;
       console.error('Error fetching words', error);
+      // don't keep playing the previous list's word under a different list name
+      setCandidates([]);
+      startNewGame([]);
+      setLoadState('error');
     }
   };
   fetchTargetWord();
@@ -230,7 +258,23 @@ useEffect(() => {
   return () => { cancelled = true; };
 }, [selectedWordListId]);
 
+const isSolved = guessedWords.length > 0
+  && guessedWords[guessedWords.length - 1].every((symbol, i) => symbol === targetWord[i]);
+const isOutOfGuesses = !isSolved && guessedWords.length >= MAX_GUESSES;
+const canPlay = targetWord.length > 0 && !isSolved && !isOutOfGuesses;
+
+const handleNewWord = () => startNewGame(pickWord(candidates, targetWord));
+
+const statusMessage =
+  isSolved ? 'You got it!'
+  : isOutOfGuesses ? `Out of guesses. The word was: ${targetWord.join(' ')}`
+  : loadState === 'error' ? "Couldn't load words for this wordlist. Try again or pick another one."
+  : loadState === 'empty' && wordLists.length === 0 ? 'No wordlists yet. Create one on the Manage page.'
+  : loadState === 'empty' ? 'This wordlist has no words with phonemes yet. Add some on the Manage page.'
+  : '';
+
 const handleBackSpace = () => {
+  if (!canPlay) return;
   setCurrentGuess(prev => prev.slice(0,-1))
 }
 
@@ -247,10 +291,12 @@ const downloadHtmlFile = () => {
 };
 
 const handlePhonemeClick = (symbol:string) => {
+    if (!canPlay) return;
     setCurrentGuess(prev=> prev.length < targetWord.length ? [...prev, symbol] : prev);
 };
 
 const handleSubmit = () => {
+  if (!canPlay) return;
   if (currentGuess.length === targetWord.length) {
     const submittedRowIndex = guessedWords.length;
     setGuessedWords(prev => [...prev, currentGuess]);
@@ -384,13 +430,15 @@ const getKeyStatuses = (): Record<string, PhonemeStatus> => {
             <option key={list.id} value={list.id}>{list.name}</option>
           ))}
         </select>
+        <button className='btn' onClick={handleNewWord} disabled={candidates.length === 0}>New word</button>
       </div>
 
-      <button className='btn download-html-btn' onClick={downloadHtmlFile}>Download HTML</button>
+      <button className='btn download-html-btn' onClick={downloadHtmlFile} disabled={targetWord.length === 0}>Download HTML</button>
 
+      <div className='wordle-message' role='status'>{statusMessage}</div>
 
       <div className='grid-board'>
-        {Array.from({ length: 6 }).map((_, rowIndex) => (
+        {Array.from({ length: MAX_GUESSES }).map((_, rowIndex) => (
           <div
             key={rowIndex}
             className={`grid-row ${rowIndex === guessedWords.length && isInvalidGuess ? 'shake' : ''}`}
@@ -417,6 +465,7 @@ const getKeyStatuses = (): Record<string, PhonemeStatus> => {
               className={`phoneme-btn ${keyStatus ? statusColorMap[keyStatus] : ''}`}
               title={`${entry.label} (as in ${entry.example})`}
               key={symbol}
+              disabled={!canPlay}
               onClick={() => handlePhonemeClick(symbol)}>
               {symbol}
             </button>
@@ -426,11 +475,11 @@ const getKeyStatuses = (): Record<string, PhonemeStatus> => {
 
       <div className = 'backSpace-submit'>
 
-        <button className = 'submit-btn' onClick={handleSubmit}>
+        <button className = 'submit-btn' onClick={handleSubmit} disabled={!canPlay}>
         Submit
       </button>
 
-      <button className = "backspace-btn" onClick={handleBackSpace}>
+      <button className = "backspace-btn" onClick={handleBackSpace} disabled={!canPlay}>
       ←
       </button>
 
