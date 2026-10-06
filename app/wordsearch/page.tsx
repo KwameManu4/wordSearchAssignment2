@@ -17,6 +17,8 @@ const MAX_PLACEMENT_ATTEMPTS = 200;
 // right, down, diagonal down-right, diagonal down-left
 const DIRECTIONS: [number, number][] = [[0, 1], [1, 0], [1, 1], [1, -1]];
 
+
+
 type PlacedWord = {
   word: WordSearchWord;
   cells: [number, number][];
@@ -261,38 +263,58 @@ export default function WordSearch() {
   const [dragStart, setDragStart] = useState<[number, number] | null>(null);
   const [dragEnd, setDragEnd] = useState<[number, number] | null>(null);
   const [dbWordList, setDbWordList] = useState<WordSearchWord[]>([]);
+  const [wordLists, setWordLists] = useState<{id: number; name:string}[]>([])
+const [selectedWordListId, setSelectedWordListId] = useState<number | null>(null)
 
-  const fetchWordList = async () => {
-    try{
-      const res = await fetch('/api/words');
-      if (res.ok) {
-        const allWords = await res.json();
+  useEffect(() => {
+    const fetchWordLists = async () => {
+      try {
+        const res = await fetch('/api/wordlist');
+        if (res.ok) {
+          const lists: {id: number; name: string}[] = await res.json();
+          setWordLists(lists);
+          setSelectedWordListId(prev => prev ?? lists[0]?.id ?? null);
+        }
+      } catch (error) {
+        console.error('Error fetching word lists', error);
+      }
+    };
+    fetchWordLists();
+  }, []);
 
-        if (allWords.length === 0) return;
+  useEffect(() => {
+    if (selectedWordListId === null) return;
+    let cancelled = false;
+
+    const fetchWords = async () => {
+      try {
+        const res = await fetch(`/api/words?wordListId=${selectedWordListId}`);
+        if (!res.ok) return;
+        const words: {id: number; english: string}[] = await res.json();
 
         const wordsWithPhonemes = await Promise.all(
-          allWords.map(async (word: {id: number; english: string}) => {
+          words.map(async (word) => {
             const phonemeRes = await fetch(`/api/Phoneme?wordId=${word.id}`);
             const phonemes = phonemeRes.ok ? await phonemeRes.json() : [];
             return { english: word.english, phonemes: phonemes.map((p: {symbol: string}) => p.symbol) };
           })
         );
 
+        if (cancelled) return;
         setDbWordList(wordsWithPhonemes.filter((word: WordSearchWord) => word.phonemes.length > 0));
+      } catch (error) {
+        console.error('Error fetching words', error);
       }
-    }catch(error){
-      console.error('Error fetching words', error);
-    }
-  };
+    };
+    fetchWords();
+
+    return () => { cancelled = true; };
+  }, [selectedWordListId]);
 
   useEffect(() => {
-    fetchWordList();
-  }, []);
-
-  useEffect(() => {
-    if (dbWordList.length > 0) {
-      setPuzzle(generatePuzzle(DEFAULT_ROWS, DEFAULT_COLS, dbWordList));
-    }
+    setPuzzle(dbWordList.length > 0 ? generatePuzzle(DEFAULT_ROWS, DEFAULT_COLS, dbWordList) : null);
+    setShowAnswers(false);
+    setFoundWords(new Set());
   }, [dbWordList]);
 
   const handleGeneratePuzzle = () => {
@@ -426,6 +448,19 @@ return (
         value={cols}
         onChange={(e) => handleDimensionChange(setCols)(e.target.value)}
         />
+
+        <label htmlFor="wordlist">Word List</label>
+        <select
+          id="wordlist"
+          value={selectedWordListId ?? ''}
+          onChange={(e) => setSelectedWordListId(Number(e.target.value))}
+          disabled={wordLists.length === 0}
+        >
+          {wordLists.length === 0 && <option value="">No wordlists</option>}
+          {wordLists.map((list) => (
+            <option key={list.id} value={list.id}>{list.name}</option>
+          ))}
+        </select>
 
         <button className='btn' onClick={handleGeneratePuzzle}>Generate Puzzle</button>
         <button className='btn' onClick={() => setShowAnswers(prev => !prev)}>

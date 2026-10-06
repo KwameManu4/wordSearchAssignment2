@@ -174,29 +174,61 @@ const [flippingRow, setFlippingRow] = useState<number | null> (null);
 
 const [targetWord, setTargetWord] = useState<string[]>([]);
 
-const fetchTargetWord = async () => {
-  try{
-    const res = await fetch ('/api/words')
-    if (res.ok) {
-      const allWords = await res.json();
+const [wordLists, setWordLists] = useState<{id: number; name: string}[]>([]);
 
-      if (allWords.length === 0) return;
-      const word = allWords[0];
-
-      const phonemeRes = await fetch(`/api/Phoneme?wordId=${word.id}`);
-      if (phonemeRes.ok) {
-        const phonemes = await phonemeRes.json();
-        setTargetWord(phonemes.map((p: {symbol: string}) => p.symbol));
-      }
-    }
-  }catch(error){
-    console.error('Error fetching words', error)
-  }
-};
+const [selectedWordListId, setSelectedWordListId] = useState<number | null>(null);
 
 useEffect(() => {
-  fetchTargetWord();
+  const fetchWordLists = async () => {
+    try {
+      const res = await fetch('/api/wordlist');
+      if (res.ok) {
+        const lists: {id: number; name: string}[] = await res.json();
+        setWordLists(lists);
+        setSelectedWordListId(prev => prev ?? lists[0]?.id ?? null);
+      }
+    } catch (error) {
+      console.error('Error fetching word lists', error);
+    }
+  };
+  fetchWordLists();
 }, []);
+
+useEffect(() => {
+  if (selectedWordListId === null) return;
+  let cancelled = false;
+
+  const fetchTargetWord = async () => {
+    try {
+      const res = await fetch(`/api/words?wordListId=${selectedWordListId}`);
+      if (!res.ok) return;
+      const words: {id: number; english: string}[] = await res.json();
+
+      // first word in the list that actually has phonemes
+      let phonemeSymbols: string[] = [];
+      for (const word of words) {
+        const phonemeRes = await fetch(`/api/Phoneme?wordId=${word.id}`);
+        if (!phonemeRes.ok) continue;
+        const phonemes = await phonemeRes.json();
+        if (phonemes.length > 0) {
+          phonemeSymbols = phonemes.map((p: {symbol: string}) => p.symbol);
+          break;
+        }
+      }
+
+      if (cancelled) return;
+      setTargetWord(phonemeSymbols);
+      setGuessedWords([]);
+      setCurrentGuess([]);
+      setFlippingRow(null);
+    } catch (error) {
+      console.error('Error fetching words', error);
+    }
+  };
+  fetchTargetWord();
+
+  return () => { cancelled = true; };
+}, [selectedWordListId]);
 
 const handleBackSpace = () => {
   setCurrentGuess(prev => prev.slice(0,-1))
@@ -337,6 +369,21 @@ const getKeyStatuses = (): Record<string, PhonemeStatus> => {
 
         <HamburgerMenu/>
 
+      </div>
+
+      <div className='wordlist-control'>
+        <label htmlFor="wordlist">Wordlist</label>
+        <select
+          id="wordlist"
+          value={selectedWordListId ?? ''}
+          onChange={(e) => setSelectedWordListId(Number(e.target.value))}
+          disabled={wordLists.length === 0}
+        >
+          {wordLists.length === 0 && <option value="">No wordlists</option>}
+          {wordLists.map((list) => (
+            <option key={list.id} value={list.id}>{list.name}</option>
+          ))}
+        </select>
       </div>
 
       <button className='btn download-html-btn' onClick={downloadHtmlFile}>Download HTML</button>

@@ -5,6 +5,7 @@ export type PhonemeEntry = {
     example: string;
 };
 
+
 export const phonemeDictionary: Record<string, PhonemeEntry> = {
     b:{label: 'BEE', example: 'bed'},
     e:{label:'E', example: 'bed'},
@@ -50,7 +51,7 @@ export const phonemeDictionary: Record<string, PhonemeEntry> = {
     ə:{label:'CHWA', example: 'teacher'},
 };
 
-export const targetWord: string[] = ['tʃ', 'oɪ', 's'];
+
 
 export type WordSearchWord = {
     english: string;
