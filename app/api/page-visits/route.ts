@@ -1,7 +1,7 @@
 import db from'@/models';
 import{NextRequest,NextResponse} from 'next/server';
 const models = db as any;
-const VALID_PAGES = ['/','/wordle','/wordsearch','/manage','/dashboard','/about'];
+const VALID_PAGES = ['/','/wordle','/wordsearch','/manage','/dashboard','/about','/settings'];
 
 
 

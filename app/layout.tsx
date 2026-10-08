@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "../Styling/Index.css";
 import { ThemeProvider } from "./Components/ThemeContext";
+import PageVisitTracker from "./Components/PageVisitTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
+          <PageVisitTracker/>
           {children}
         </ThemeProvider>
       </body>
