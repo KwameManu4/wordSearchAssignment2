@@ -36,6 +36,11 @@ export default function Settings() {
             MANAGE
         </Link>
 
+        <Link href="/dashboard"
+        className="btn">
+            DASHBOARD
+        </Link>
+
         <Link href="/about"
         className="btn">
           ABOUT

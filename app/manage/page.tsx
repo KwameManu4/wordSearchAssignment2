@@ -271,6 +271,11 @@ export default function Manage() {
             MANAGE
         </Link>
 
+        <Link href="/dashboard"
+        className="btn">
+            DASHBOARD
+        </Link>
+
         <Link href="/about"
         className="btn">
           ABOUT
