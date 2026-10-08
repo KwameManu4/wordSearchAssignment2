@@ -35,6 +35,13 @@ export async function GET(){
             raw: true,
         });
 
+        // how many Wordle / Word Search activities are configured
+        const settingsByType = await models.ActivitySetting.findAll({
+            attributes: ['type', [fn('COUNT', col('id')), 'count']],
+            group: ['type'],
+            raw: true,
+        });
+
         const visit = await models.PageVisit.findOne({
             attributes: [[fn('AVG', col('durationSeconds')), 'avg']],
             raw: true,
@@ -50,6 +57,14 @@ export async function GET(){
         for (const row of byType as { activityType: 'wordle' | 'wordsearch'; count: number }[]) {
             if (row.activityType in generationByType) {
                 generationByType[row.activityType] = Number(row.count);
+            }
+        }
+
+        // same zero filled shape as generation.byType
+        const activitySettingsByType: Record<'wordle' | 'wordsearch', number> = { wordle: 0, wordsearch: 0 };
+        for (const row of settingsByType as { type: 'wordle' | 'wordsearch'; count: number }[]) {
+            if (row.type in activitySettingsByType) {
+                activitySettingsByType[row.type] = Number(row.count);
             }
         }
 
@@ -111,7 +126,7 @@ export async function GET(){
 
         return NextResponse.json({
             health: { status: 'ok' },
-            totals: { wordLists, words, activitySettings },
+            totals: { wordLists, words, activitySettings, activitySettingsByType },
             generation: {
                 total: generationTotal,
                 success: generationSuccess,

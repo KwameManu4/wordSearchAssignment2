@@ -1,0 +1,118 @@
+.settings{
+    max-width: 700px;
+    margin: 2rem auto 2.5rem;
+    padding: 0 1.5rem;
+    color: var(--text-color);
+}
+
+.settings-section{
+    margin-bottom: 2.5rem;
+}
+
+.settings-section h2{
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+}
+
+.settings-form{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+.settings-field{
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.95rem;
+}
+
+.settings-field select,
+.settings-field input{
+    padding: 10px 12px;
+    font-size: 1rem;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: 1px solid var(--button-bg);
+    border-radius: 6px;
+}
+
+.settings-field select:focus,
+.settings-field input:focus{
+    outline: none;
+    border-color: var(--text-color);
+}
+
+.settings-check{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 10px;
+    cursor: pointer;
+}
+
+.settings-submit{
+    justify-self: start;
+}
+
+.settings-submit:disabled{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.settings-note{
+    margin: 0.75rem 0 0;
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+.settings-link{
+    color: var(--text-color);
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.settings-message{
+    margin: 1rem 0 0;
+    padding: 0.7rem 1rem;
+    background-color: var(--button-bg);
+    border-left: 6px solid #2e7d32;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.settings-message-error{
+    border-left-color: #c62828;
+}
+
+.settings-list{
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+}
+
+.settings-list-item{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--button-bg);
+    border-radius: 8px;
+}
+
+.settings-list-text{
+    font-size: 0.95rem;
+    text-transform: none;
+}
+
+@media (max-width: 600px){
+    .settings-list-item{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

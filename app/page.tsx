@@ -6,15 +6,21 @@ import PhonemeChip from './Components/PhonemeChip';
 import Footer from './Components/Footer';
 import { phonemeDictionary } from './data/Phonemes';
 
+
 const teaserSymbols = ['θ', 'tʃ', 's', 'ʃ', 'ð'];
 
 export default function Home() {
+
+  // Guard: only teach symbols that exist in the dictionary. A missing entry would
+  // reach PhonemeChip as undefined and crash the whole home page on entry.label.
+  const availableSymbols = teaserSymbols.filter(symbol => phonemeDictionary[symbol]);
+
 
   return (
 
     <div className="page">
       <div className = "header-home">
-        <h1 style={{ fontSize: 32 }}>Assessment 2: Backend API - Home</h1>
+        <h1 style={{ fontSize: 32 }}>Assessment 3: Home</h1>
       </div>
       <div className='navbar'>
 
@@ -79,15 +85,17 @@ export default function Home() {
         </div>
       </div>
 
-      <div className='phoneme-teaser'>
-        <h2>Phoneme hints, at a glance</h2>
-        <p>Every phoneme button shows its English sound on hover — try one below.</p>
-        <div className='phoneme-teaser-row'>
-          {teaserSymbols.map(symbol => (
-            <PhonemeChip key={symbol} symbol={symbol} entry={phonemeDictionary[symbol]} />
-          ))}
+      {availableSymbols.length > 0 && (
+        <div className='phoneme-teaser'>
+          <h2>Phoneme hints, at a glance</h2>
+          <p>Every phoneme button shows its English sound on hover — try one below.</p>
+          <div className='phoneme-teaser-row'>
+            {availableSymbols.map(symbol => (
+              <PhonemeChip key={symbol} symbol={symbol} entry={phonemeDictionary[symbol]} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <Footer />
 

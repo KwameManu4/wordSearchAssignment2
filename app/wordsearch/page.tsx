@@ -6,6 +6,7 @@ import { phonemeDictionary, WordSearchWord } from '../data/Phonemes';
 import '../../styling/WordSearch.css';
 import HamburgerMenu from '../Components/HamburgerMenu';
 import Footer from '../Components/Footer';
+import { recordGeneration } from '../lib/recordGeneration';
 
 const MIN_DIMENSION = 5;
 const MAX_DIMENSION = 15;
@@ -301,7 +302,12 @@ const [selectedWordListId, setSelectedWordListId] = useState<number | null>(null
         );
 
         if (cancelled) return;
-        setDbWordList(wordsWithPhonemes.filter((word: WordSearchWord) => word.phonemes.length > 0));
+        const playable = wordsWithPhonemes.filter((word: WordSearchWord) => word.phonemes.length > 0);
+        setDbWordList(playable);
+        // a new list means a fresh puzzle (an empty list clears the grid)
+        setPuzzle(playable.length > 0 ? generatePuzzle(DEFAULT_ROWS, DEFAULT_COLS, playable) : null);
+        setShowAnswers(false);
+        setFoundWords(new Set());
       } catch (error) {
         console.error('Error fetching words', error);
       }
@@ -310,12 +316,6 @@ const [selectedWordListId, setSelectedWordListId] = useState<number | null>(null
 
     return () => { cancelled = true; };
   }, [selectedWordListId]);
-
-  useEffect(() => {
-    setPuzzle(dbWordList.length > 0 ? generatePuzzle(DEFAULT_ROWS, DEFAULT_COLS, dbWordList) : null);
-    setShowAnswers(false);
-    setFoundWords(new Set());
-  }, [dbWordList]);
 
   const handleGeneratePuzzle = () => {
     setPuzzle(generatePuzzle(rows, cols, dbWordList));
@@ -378,7 +378,10 @@ const isFoundCell = (row: number, col: number): boolean => {
 };
 
 const downloadHtmlFile = () => {
-    if (!puzzle) return;
+    if (!puzzle) {
+        recordGeneration({ activityType: 'wordsearch', status: 'failed', failureReason: 'No words with phonemes in this wordlist', wordListId: selectedWordListId });
+        return;
+    }
     const html = buildStandaloneHtml(puzzle);
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -387,12 +390,13 @@ const downloadHtmlFile = () => {
     link.download = 'phoneme-word-search.html';
     link.click();
     URL.revokeObjectURL(url);
+    recordGeneration({ activityType: 'wordsearch', status: 'success', wordListId: selectedWordListId });
 };
 
 return (
     <div className="page">
     <div className = "header-wordsearch">
-        <h1 style={{ fontSize: 32 }}>Assessment 2: Backend API - Word Search</h1>
+        <h1 style={{ fontSize: 32 }}>Assessment 3: Word Search</h1>
     </div>
     
     <div className='navbar'>

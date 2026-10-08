@@ -244,7 +244,7 @@ export default function Manage() {
     return (
     <div className="page">
       <div className = "header-settings">
-        <h1 style={{ fontSize: 32 }}>Assessment 2: Backend API - Manage my Words</h1>
+        <h1 style={{ fontSize: 32 }}>Assessment 3:  Manage my Words</h1>
       </div>
     
     <div className='navbar'>

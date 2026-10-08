@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import '../../styling/Wordle.css';
 import HamburgerMenu from '../Components/HamburgerMenu';
 import Footer from '../Components/Footer';
+import { recordGeneration } from '../lib/recordGeneration';
 
 
 const MAX_GUESSES = 6;
@@ -279,7 +280,10 @@ const handleBackSpace = () => {
 }
 
 const downloadHtmlFile = () => {
-  if (targetWord.length === 0) return;
+  if (targetWord.length === 0) {
+    recordGeneration({ activityType: 'wordle', status: 'failed', failureReason: 'No words with phonemes in this wordlist', wordListId: selectedWordListId });
+    return;
+  }
   const html = buildStandaloneHtml(targetWord);
   const blob = new Blob([html], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
@@ -288,6 +292,7 @@ const downloadHtmlFile = () => {
   link.download = 'phoneme-wordle.html';
   link.click();
   URL.revokeObjectURL(url);
+  recordGeneration({ activityType: 'wordle', status: 'success', wordListId: selectedWordListId });
 };
 
 const handlePhonemeClick = (symbol:string) => {
@@ -381,7 +386,7 @@ const getKeyStatuses = (): Record<string, PhonemeStatus> => {
   return (
     <div className="page">
       <div className = "header-wordle">
-        <h1 style={{ fontSize: 32 }}>Assessment 2: Backend API - Wordle</h1>
+        <h1 style={{ fontSize: 32 }}>Assessment 3: Wordle</h1>
       </div>
 
       
@@ -438,7 +443,7 @@ const getKeyStatuses = (): Record<string, PhonemeStatus> => {
         <button className='btn' onClick={handleNewWord} disabled={candidates.length === 0}>New word</button>
       </div>
 
-      <button className='btn download-html-btn' onClick={downloadHtmlFile} disabled={targetWord.length === 0}>Download HTML</button>
+      <button className='btn download-html-btn' onClick={downloadHtmlFile}>Download HTML</button>
 
       <div className='wordle-message' role='status'>{statusMessage}</div>
 

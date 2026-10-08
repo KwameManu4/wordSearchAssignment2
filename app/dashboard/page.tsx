@@ -18,6 +18,7 @@ type Stats = {
         wordLists: number;
         words: number;
         activitySettings: number;
+        activitySettingsByType: Record<ActivityType, number>;
     };
     generation: {
         total: number;
@@ -152,7 +153,7 @@ const mostUsedText = !stats
 return (
     <div className="page">
     <div className="header-dashboard">
-        <h1 style={{ fontSize: 32 }}>Assessment 2: Backend API - Dashboard</h1>
+        <h1 style={{ fontSize: 32 }}>Assessment 3 - Dashboard</h1>
     </div>
 
     <div className='navbar'>
@@ -250,6 +251,12 @@ return (
                     <span className="dashboard-card-value">{stats.totals.activitySettings}</span>
                 <span className="dashboard-card-label">Activity settings</span>
                 </div>
+                {(Object.keys(ACTIVITY_LABELS) as ActivityType[]).map((type) => (
+                  <div key={type} className="dashboard-card">
+                    <span className="dashboard-card-value">{stats.totals.activitySettingsByType[type]}</span>
+                    <span className="dashboard-card-label">{ACTIVITY_LABELS[type]} activities</span>
+                  </div>
+                ))}
             </div>
             </section>
 
