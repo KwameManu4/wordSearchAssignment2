@@ -20,7 +20,7 @@ export async function POST(request: NextRequest){
         if (!VALID_PAGES.includes(page)){
             return NextResponse.json({error:'Invalid page'},{status:400});
         }
-        if (!Number.isInteger(durationSeconds) || durationSeconds <= 0 || durationSeconds >= 1800){
+        if (!Number.isInteger(durationSeconds) || durationSeconds < 0 || durationSeconds > 1800){
             return NextResponse.json({error:'duration not a number, must be between 0 and 1800 seconds'}, {status:400});
         }
         const visit = await models.PageVisit.create({page,durationSeconds});
