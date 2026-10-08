@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import HamburgerMenu from '../Components/HamburgerMenu';
 import Footer from '../Components/Footer';
-import '../../Styling/Manage.css';
+import '../../styling/Manage.css';
 import { phonemeDictionary } from '../data/Phonemes';
 
 

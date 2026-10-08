@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import HamburgerMenu from '../Components/HamburgerMenu';
 import Footer from '../Components/Footer';
-import '../../Styling/Dashboard.css';
+import '../../styling/Dashboard.css';
 
 // How often the dashboard re-checks /api/stats while auto-refresh is on.
 const REFRESH_MS = 10_000;

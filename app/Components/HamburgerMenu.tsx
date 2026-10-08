@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react';
 import Link from 'next/link';
-import styles from '../../Styling/Hamburgermenu.module.css';
+import styles from '../../styling/Hamburgermenu.module.css';
 import { useTheme } from './ThemeContext';
 
 const HamburgerMenu = () => {

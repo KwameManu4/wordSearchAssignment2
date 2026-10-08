@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import {phonemeDictionary} from '../data/Phonemes';
 import { useState, useEffect } from 'react';
-import '../../Styling/Wordle.css';
+import '../../styling/Wordle.css';
 import HamburgerMenu from '../Components/HamburgerMenu';
 import Footer from '../Components/Footer';
 
