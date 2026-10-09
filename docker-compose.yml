@@ -1,0 +1,12 @@
+services:
+  web:
+    build: .
+    container_name: word-search
+    ports:
+      - "3000:3000"
+    volumes:
+      - word-search-data:/app/sqlite
+    restart: unless-stopped
+
+volumes:
+  word-search-data:
