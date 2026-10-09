@@ -17,7 +17,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Word Search",
+  // each route's layout sets its own title, which fills the %s
+  title: {
+    default: "Phoneme Word Search",
+    template: "%s | Phoneme Word Search",
+  },
   description: "Phoneme Wordle and Word Search builder for speech pathology",
 };
 
